@@ -72,7 +72,10 @@ class LoginController extends Controller
 
         if ($user && (Hash::check($request->get('password'), $user->password))) {   
             if (!$user->email_verified_at ) {
-                return $this->errorResponse('Your email address is in pending verification status.');
+                return [
+                    'status'    => 'ERROR',
+                    'message'   => 'Your email address is in pending verification status.'
+                ];
             }
 
             // re-generate API token if needed

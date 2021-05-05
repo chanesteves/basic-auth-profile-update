@@ -30,7 +30,10 @@ class UserController extends Controller
 
         $user = User::find($id);
         if(!$user) {
-            return $this->errorResponse('User not found.');
+            return [
+                'status'    => 'ERROR',
+                'message'   => 'User not found.'
+            ];
         }
         // END: Validate profile fields
 
@@ -56,13 +59,25 @@ class UserController extends Controller
         $this->validate($request, [
             'email'              => 'required'
         ]);
+
+        $invitee = User::where('email', $request->email)->first();
+        if($invitee && strpos($invitee->user_name, 'invited') === false) {
+            return [
+                'status'    => 'ERROR',
+                'message'   => 'Email '. $request->email . ' is already registered.'
+            ];
+        }
+
         // END: Validate invitation fields
 
         // START: Authenticate/Validate invitation sender
         $user = User::find($id);
 
         if (!$user) {
-            return $this->errorResponse('User not found.');
+            return [
+                'status'    => 'ERROR',
+                'message'   => 'User not found.'
+            ];
         }
         // END: Authenticate/Validate invitation sender
 
@@ -81,10 +96,10 @@ class UserController extends Controller
             "notification_sent_at"  => date("Y-m-d H:i:s")
         ];
 
-        $invitation = Invitation::updateOrCreate($invitation_data, [
+        $invitation = Invitation::updateOrCreate([
             "inviter_id"    => $user->id,
             "invitee_email" => $recipient_email
-        ]);
+        ], $invitation_data);
 
         $latest_user_id = 0;
         $latest_user = User::latest()->first();
@@ -99,9 +114,9 @@ class UserController extends Controller
             "password"          => Hash::make("password")
         ];
 
-        $invitee = User::updateOrCreate($user_data, [
+        $invitee = User::updateOrCreate([
             "email" => $recipient_email
-        ]);
+        ], $user_data);
         // END: Store the invitation data to database
 
         // send the invitation notification

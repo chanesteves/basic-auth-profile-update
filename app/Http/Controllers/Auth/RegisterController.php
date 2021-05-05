@@ -72,6 +72,8 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return User::updateOrCreate([
+            'email' => $data['email']
+        ], [
             'name'                      => $data['name'],
             'user_name'                 => $data['user_name'],
             'password'                  => Hash::make($data['password']),
@@ -79,7 +81,7 @@ class RegisterController extends Controller
             'invitation_code'           => Str::random(60),
             'api_token'                 => Str::random(60),
             'email_verification_code'   => str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT)
-        ], ['email' => $data['email']]);
+        ]);
     }
 
     public function register(Request $request){
@@ -87,18 +89,27 @@ class RegisterController extends Controller
         $this->validate($request, [
             'name'              => 'required',
             'user_name'         => 'required|min:4|max:20',
-            'email'             => 'required|email|max:255|unique:users',
-            'password'          => 'required',
+            'email'             => 'required|email|max:255',
+            'password'          => 'required|confirmed',
             'user_role'         => 'required',
             'invitation_code'   => 'required'
         ]);
 
-        $user = User::where(array('user_name' => $request->user_name))->first();
-        if($user) {
-            return [
-                'status'    => 'ERROR',
-                'message'   => 'Username '. $request->user_name . ' already exists.'
-            ];
+        // check if username or email already exists
+        $user = User::where('user_name', $request->user_name)->orWhere('email', $request->email)->first();
+        if($user && strpos($user->user_name, 'invited') === false) {
+            if ($user->user_name == $request->user_name) {
+                return [
+                    'status'    => 'ERROR',
+                    'message'   => 'Username '. $request->user_name . ' already exists.'
+                ];
+            }
+            if ($user->email == $request->email) {
+                return [
+                    'status'    => 'ERROR',
+                    'message'   => 'Email '. $request->email . ' already exists.'
+                ];
+            }
         }
 
         // validate invitation code

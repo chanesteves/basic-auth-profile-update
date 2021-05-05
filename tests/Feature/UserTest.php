@@ -23,16 +23,27 @@ class UserTest extends TestCase
         if ($latest_user) {
             $latest_user_id = $latest_user->id;
         }
+        $latest_active_user = User::where('user_name', 'not like', '%invited%')->latest()->first();
 
         if ($user) {
-            // START: test invite failed
+            // START: test invite failed (no email)
             $response = $this->json('POST', '/api/users/' . $user->id . '/send-invite', [
                 'email'     => '',
                 'api_token' => $user->api_token
             ]);
 
             $response->assertStatus(422);
-            // END: test invite failed
+            // END: test invite failed (no email)
+
+            // START: test invite failed (email already registered)
+            $response = $this->json('POST', '/api/users/' . $user->id . '/send-invite', [
+                'email'     => $latest_active_user->email,
+                'api_token' => $user->api_token
+            ]);
+
+            $response->assertStatus(200);
+            $this->assertEquals('ERROR', $response['status']);
+            // END: test invite failed (email already registered)
 
             // START: test invite success
             $response = $this->json('POST', '/api/users/' . $user->id . '/send-invite', [
