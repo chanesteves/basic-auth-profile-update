@@ -74,13 +74,14 @@ class RegisterController extends Controller
         return User::updateOrCreate([
             'email' => $data['email']
         ], [
-            'name'                      => $data['name'],
-            'user_name'                 => $data['user_name'],
-            'password'                  => Hash::make($data['password']),
-            'user_role'                 => $data['user_role'],
-            'invitation_code'           => str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT),
-            'api_token'                 => Str::random(60),
-            'email_verification_code'   => str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT)
+            'name'                          => $data['name'],
+            'user_name'                     => $data['user_name'],
+            'password'                      => Hash::make($data['password']),
+            'user_role'                     => $data['user_role'],
+            'invitation_code'               => str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT),
+            'api_token'                     => Str::random(60),
+            'email_verification_code'       => str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT),
+            'email_verification_sent_at'    => date('Y-m-d H:i:s')
         ]);
     }
 
@@ -176,6 +177,9 @@ class RegisterController extends Controller
             ];
         }
         // END: Validate verification fields
+
+        $user->email_verified_at = date('Y-m-d H:i:s');
+        $user->save();
 
         return [
             'status'    => 'OK',
