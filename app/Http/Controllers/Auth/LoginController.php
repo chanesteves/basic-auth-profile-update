@@ -49,16 +49,12 @@ class LoginController extends Controller
         $this->middleware('guest', ['except' => 'logout']);
     }
 
-    public static function redirectPath()
-    {
-        $role = Session::get('role');
-
-        if (!$role)
-            return '/auth/login';
-
-        return '/home';
-    }
-
+    /**
+     * Handler or /login route
+     *
+     * @param  Illuminate\Http\Request  $request
+     * @return array
+     */
     public function login(Request $request)
     {
         // START: Validate login fields

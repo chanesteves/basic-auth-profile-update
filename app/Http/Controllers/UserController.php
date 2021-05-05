@@ -16,8 +16,9 @@ class UserController extends Controller
     /**
 	 * Update the specified resource in storage.
 	 *
+     * @param  Illuminate\Http\Request  $request
 	 * @param  int  $id
-	 * @return Response
+	 * @return array
 	 */
 	public function update(Request $request, $id)
 	{
@@ -54,6 +55,13 @@ class UserController extends Controller
         ];
 	}
 
+    /**
+	 * Handler or /users/{user}/send-invite route.
+	 *
+     * @param  Illuminate\Http\Request  $request
+	 * @param  int  $id
+	 * @return array
+	 */
     public function sendInvite (Request $request, $id) {
         // START: Validate invitation fields
         $this->validate($request, [
@@ -83,7 +91,7 @@ class UserController extends Controller
 
         // generate invitation code if needed
         if (!$user->invitation_code) {
-            $user->invitation_code = Str::random(60);
+            $user->invitation_code = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
             $user->save();
         }
         
@@ -123,9 +131,10 @@ class UserController extends Controller
         $invitee->notify(new InvitationCreated($invitation));
 
         return [
-            'status'    => 'OK',
-            'message'   => 'Successfully sent email.',
-            'email'     => $recipient_email
+            'status'            => 'OK',
+            'message'           => 'Successfully sent email.',
+            'email'             => $recipient_email,
+            'invitation_code'   => $invitation_code,
         ];
     }
 }

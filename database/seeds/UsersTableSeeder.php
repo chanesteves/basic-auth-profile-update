@@ -21,7 +21,7 @@ class UsersTableSeeder extends Seeder
         $password = Hash::make("password");
 
         // generate invitation code
-        $invitation_code = Str::random(60);
+        $invitation_code = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
         // generate API token
         $api_token = Str::random(60);

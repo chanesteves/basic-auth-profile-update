@@ -78,7 +78,7 @@ class RegisterController extends Controller
             'user_name'                 => $data['user_name'],
             'password'                  => Hash::make($data['password']),
             'user_role'                 => $data['user_role'],
-            'invitation_code'           => Str::random(60),
+            'invitation_code'           => str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT),
             'api_token'                 => Str::random(60),
             'email_verification_code'   => str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT)
         ]);
@@ -88,7 +88,7 @@ class RegisterController extends Controller
      * Handler or /register route
      *
      * @param  Illuminate\Http\Request  $request
-     * @return User
+     * @return array
      */
     public function register(Request $request){
         // START: Validate registration fields
@@ -153,7 +153,7 @@ class RegisterController extends Controller
      * Handler or /verify route
      *
      * @param  Illuminate\Http\Request  $request
-     * @return User
+     * @return array
      */
     public function verify(Request $request){
         // START: Validate verification fields
