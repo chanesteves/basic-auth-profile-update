@@ -112,4 +112,35 @@ class AuthTest extends TestCase
             // END: test registration success
         }
     }
+
+    /**
+     * A basic feature to test email verification.
+     *
+     * @return void
+     */
+    public function testVerify()
+    {
+        $latest_unverified_user = User::whereNotNull('email_verification_code')->latest()->first();
+
+        if ($latest_unverified_user) {
+            // START: test verify failed
+            $response = $this->json('POST', '/api/verify', [
+                'user_name'                 => $latest_unverified_user->user_name,
+                'email_verification_code'   => ''
+            ]);
+
+            $response->assertStatus(422);
+            // END: test verify failed
+
+            // START: test verify success
+            $response = $this->json('POST', '/api/verify', [
+                'user_name'                 => $latest_unverified_user->user_name,
+                'email_verification_code'   => $latest_unverified_user->email_verification_code
+            ]);
+
+            $response->assertStatus(200);
+            $this->assertEquals('OK', $response['status']);
+            // END: test verify success
+        }
+    }
 }

@@ -84,6 +84,12 @@ class RegisterController extends Controller
         ]);
     }
 
+    /**
+     * Handler or /register route
+     *
+     * @param  Illuminate\Http\Request  $request
+     * @return User
+     */
     public function register(Request $request){
         // START: Validate registration fields
         $this->validate($request, [
@@ -143,6 +149,12 @@ class RegisterController extends Controller
         ];
     }
 
+    /**
+     * Handler or /verify route
+     *
+     * @param  Illuminate\Http\Request  $request
+     * @return User
+     */
     public function verify(Request $request){
         // START: Validate verification fields
         $this->validate($request, [
@@ -152,10 +164,16 @@ class RegisterController extends Controller
 
         $user = User::where(array('user_name' => $request->user_name))->first();
         if(!$user) {
-            return $this->errorResponse('User not found.');
+            return [
+                'status'    => 'ERROR',
+                'message'   => 'User not found.'
+            ];
         }
-        if ($email_verification_code != $user->email_verification_code) {
-            return $this->errorResponse('Invalid verification code.');
+        if ($request->email_verification_code != $user->email_verification_code) {
+            return [
+                'status'    => 'ERROR',
+                'message'   => 'Invalid verification code.'
+            ];
         }
         // END: Validate verification fields
 

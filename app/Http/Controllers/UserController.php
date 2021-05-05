@@ -101,10 +101,10 @@ class UserController extends Controller
             "invitee_email" => $recipient_email
         ], $invitation_data);
 
-        $latest_user_id = 0;
+        $latest_user_id = 1;
         $latest_user = User::latest()->first();
         if ($latest_user) {
-            $latest_user_id = $latest_user->id;
+            $latest_user_id = $latest_user->id + 1;
         }
 
         $user_data = [
